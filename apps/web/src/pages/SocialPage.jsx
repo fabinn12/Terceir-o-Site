@@ -35,7 +35,7 @@ const SocialPage = () => {
   return (
     <div className="min-h-screen pt-24 pb-16 bg-[#f8fafc]">
       <div className="container mx-auto px-4 max-w-5xl text-center">
-        
+
         <h1 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">
           Nossas Redes Sociais
         </h1>
@@ -53,21 +53,16 @@ const SocialPage = () => {
               rel="noopener noreferrer"
               className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center"
             >
-              {/* Círculo externo (não alterado) */}
-              <div className={`w-28 h-28 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md`}>
+              
+              {/* CÍRCULO ÚNICO COM CORTE AUTOMÁTICO */}
+              <div className={`w-28 h-28 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md overflow-hidden`}>
                 
-                {/* Miolo branco (não alterado) */}
-                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center">
-                  
-                  {/* Logo aumentada */}
-                  <img
-                    src={link.logo}
-                    alt={link.name}
-                    className="w-[68px] h-[68px] object-contain"
-                    draggable="false"
-                  />
-                  
-                </div>
+                <img
+                  src={link.logo}
+                  alt={link.name}
+                  className="w-[90px] h-[90px] object-contain"
+                  draggable="false"
+                />
 
               </div>
 
