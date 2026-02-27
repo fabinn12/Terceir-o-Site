@@ -22,7 +22,7 @@ export default function PixPage() {
 
   return (
     <div className="min-h-[calc(100vh-120px)] bg-background">
-      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 py-10">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -33,13 +33,12 @@ export default function PixPage() {
             Contribuir via Pix
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Preencha seu nome e o valor. Depois escaneie o QR Code. Ao finalizar,
-            confirme que enviou o Pix.
+            Primeiro faça o Pix pelo QR Code. Depois preencha seu nome e o valor e confirme o envio.
           </p>
         </motion.div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Formulário */}
+          {/* ESQUERDA: QR CODE (vem primeiro) */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -47,7 +46,40 @@ export default function PixPage() {
           >
             <Card className="shadow-sm">
               <CardHeader>
-                <CardTitle className="text-xl">Seus dados</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <QrCode className="h-5 w-5" />
+                  QR Code do Pix
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Escaneie o QR Code abaixo e faça o Pix.
+                </p>
+
+                <img
+                  src="/qrcode-pix.jpg"
+                  alt="QR Code Pix - Terceirão"
+                  className="w-full rounded-2xl border bg-white"
+                  loading="lazy"
+                />
+
+                <p className="text-xs text-muted-foreground">
+                  Se não conseguir escanear, tente aumentar o brilho da tela ou aproximar a câmera.
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* DIREITA: CADASTRO/CONFIRMAÇÃO */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.1 }}
+          >
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl">Confirmar contribuição</CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-4">
@@ -63,7 +95,7 @@ export default function PixPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Valor (R$)</Label>
+                  <Label htmlFor="amount">Valor enviado (R$)</Label>
                   <Input
                     id="amount"
                     value={amount}
@@ -89,12 +121,14 @@ export default function PixPage() {
                     Já enviei o Pix
                   </Button>
                 ) : (
-                  <div className="rounded-xl border bg-card p-4">
+                  <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-green-950">
                     <div className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-secondary" />
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
                       <div>
-                        <p className="font-semibold">Solicitação enviada!</p>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <p className="font-semibold text-green-900">
+                          Solicitação enviada!
+                        </p>
+                        <p className="mt-1 text-sm text-green-900/90">
                           Em até <b>24 horas</b> vamos conferir e, após confirmar,
                           você aparece no ranking.
                         </p>
@@ -116,50 +150,8 @@ export default function PixPage() {
                 )}
 
                 <p className="text-xs text-muted-foreground">
-                  Dica: use vírgula ou ponto (25,00 / 25.00).
+                  Dica: pode digitar com vírgula ou ponto (25,00 / 25.00).
                 </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* QR Code */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.1 }}
-          >
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <QrCode className="h-5 w-5" />
-                  QR Code do Pix
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Escaneie o QR Code abaixo e faça o Pix.
-                </p>
-
-                {/* Troque este bloco por uma imagem real */}
-                <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-dashed bg-muted/30">
-                  <div className="px-6 text-center">
-                    <p className="text-sm font-medium">
-                      Coloque aqui a imagem do QR Code
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Ex.: <code className="rounded bg-muted px-1">/public/qrcode.png</code>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Exemplo de como fica quando você tiver a imagem:
-                    <img
-                      src="/qrcode.png"
-                      alt="QR Code Pix"
-                      className="w-full rounded-2xl border"
-                    />
-                */}
               </CardContent>
             </Card>
           </motion.div>
