@@ -121,37 +121,34 @@ const HomePage = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 mb-10">
-                  {/* Meta desejada */}
-                  <div className="rounded-2xl p-6 md:p-8 text-center border border-gray-200 bg-gray-50 transition-transform hover:-translate-y-1 shadow-sm">
-                    <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
-                      Meta (valor desejado)
-                    </p>
-                   <p className="text-[clamp(22px,3.2vw,44px)] font-extrabold tracking-tight text-[#1e3a5f] whitespace-nowrap clamp()">
-  {formatBRL(meta.metaDesejada)}
-</p>
-                  </div>
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 mb-10">
+  <div className="rounded-2xl p-6 md:p-8 text-center border border-gray-200 bg-gray-50 transition-transform hover:-translate-y-1 shadow-sm min-w-0 overflow-hidden">
+    <p className="text-gray-600 font-semibold mb-3 text-base md:text-lg">
+      Meta (valor desejado)
+    </p>
+    <p className="max-w-full text-[clamp(20px,2.6vw,40px)] font-extrabold tracking-tight leading-none text-[#1e3a5f] whitespace-nowrap">
+      {formatBRL(meta.metaDesejada)}
+    </p>
+  </div>
 
-                  {/* Quanto temos */}
-                  <div className="rounded-2xl p-6 md:p-8 text-center border border-blue-100 bg-blue-50 transition-transform hover:-translate-y-1 shadow-sm">
-                    <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
-                      Quanto temos
-                    </p>
-                <p className="text-[clamp(22px,3.2vw,44px)] font-extrabold tracking-tight text-[#0066cc] whitespace-nowrap clamp()">
-  {formatBRL(meta.arrecadado)}
-</p>
-                  </div>
+  <div className="rounded-2xl p-6 md:p-8 text-center border border-blue-100 bg-blue-50 transition-transform hover:-translate-y-1 shadow-sm min-w-0 overflow-hidden">
+    <p className="text-gray-600 font-semibold mb-3 text-base md:text-lg">
+      Quanto temos
+    </p>
+    <p className="max-w-full text-[clamp(20px,2.6vw,40px)] font-extrabold tracking-tight leading-none text-[#0066cc] whitespace-nowrap">
+      {formatBRL(meta.arrecadado)}
+    </p>
+  </div>
 
-                  {/* Quanto falta (auto) */}
-                  <div className="rounded-2xl p-6 md:p-8 text-center border border-emerald-100 bg-emerald-50 transition-transform hover:-translate-y-1 shadow-sm">
-                    <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
-                      Quanto falta
-                    </p>
-                  <p className="text-[clamp(22px,3.2vw,44px)] font-extrabold tracking-tight text-emerald-700 whitespace-nowrap clamp()">
-  {formatBRL(falta)}
-</p>
-                  </div>
-                </div>
+  <div className="rounded-2xl p-6 md:p-8 text-center border border-emerald-100 bg-emerald-50 transition-transform hover:-translate-y-1 shadow-sm min-w-0 overflow-hidden">
+    <p className="text-gray-600 font-semibold mb-3 text-base md:text-lg">
+      Quanto falta
+    </p>
+    <p className="max-w-full text-[clamp(20px,2.6vw,40px)] font-extrabold tracking-tight leading-none text-emerald-700 whitespace-nowrap">
+      {formatBRL(falta)}
+    </p>
+  </div>
+</div>
 
                 <div className="space-y-3 bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-sm">
                   <div className="flex justify-between text-sm md:text-base font-semibold text-[#1e3a5f]">
