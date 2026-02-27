@@ -1,7 +1,7 @@
 import React from 'react';
 
 import whatsappLogo from '@/assets/w.png';
-import instagramLogo from '@/assets/i-convertido-de-jpg.png';
+import instagramLogo from '@/assets/i.png';
 import tiktokLogo from '@/assets/Tik.png';
 
 const SocialPage = () => {
@@ -35,6 +35,7 @@ const SocialPage = () => {
   return (
     <div className="min-h-screen pt-24 pb-16 animate-fade-in bg-[#f8fafc]">
       <div className="container mx-auto px-4 max-w-5xl text-center">
+        
         <h1 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">
           Nossas Redes Sociais
         </h1>
@@ -52,10 +53,11 @@ const SocialPage = () => {
               rel="noopener noreferrer"
               className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center group"
             >
-              {/* Ícone bonito mesmo com PNG com fundo */}
+              {/* CÍRCULO EXTERNO COLORIDO */}
               <div
                 className={`w-24 h-24 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md transition-transform duration-300 group-hover:scale-110`}
               >
+                {/* CÍRCULO INTERNO BRANCO */}
                 <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
                   <img
                     src={link.logo}
