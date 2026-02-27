@@ -35,7 +35,6 @@ const SocialPage = () => {
   return (
     <div className="min-h-screen pt-24 pb-16 bg-[#f8fafc]">
       <div className="container mx-auto px-4 max-w-5xl text-center">
-
         <h1 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">
           Nossas Redes Sociais
         </h1>
@@ -53,21 +52,18 @@ const SocialPage = () => {
               rel="noopener noreferrer"
               className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center"
             >
-              
-              {/* CÍRCULO EXTERNO */}
-              <div className={`relative w-28 h-28 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md`}>
-                
-                {/* IMAGEM GRANDE */}
-                <img
-                  src={link.logo}
-                  alt={link.name}
-                  className="w-[95px] h-[95px] object-contain"
-                  draggable="false"
-                />
-
-                {/* CÍRCULO BRANCO POR CIMA (MÁSCARA) */}
-                <div className="absolute inset-0 rounded-full border-[12px] border-white pointer-events-none"></div>
-
+              {/* CÍRCULO COLORIDO */}
+              <div className={`relative w-28 h-28 rounded-full ${link.color} mb-6 shadow-md flex items-center justify-center`}>
+                {/* CÍRCULO BRANCO INTERNO (MÁSCARA REAL) */}
+                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  {/* IMAGEM MAIOR, MAS CORTADA PELO CÍRCULO */}
+                  <img
+                    src={link.logo}
+                    alt={link.name}
+                    className="w-[88px] h-[88px] object-contain"
+                    draggable="false"
+                  />
+                </div>
               </div>
 
               <h2 className={`text-2xl font-bold ${link.textColor} mb-2`}>
@@ -84,7 +80,6 @@ const SocialPage = () => {
             </a>
           ))}
         </div>
-
       </div>
     </div>
   );
