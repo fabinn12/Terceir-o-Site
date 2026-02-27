@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import pb from '@/lib/pocketbaseClient';
+
 import { useToast } from "@/hooks/use-toast";
 
 const NoiteMassasPage = () => {
