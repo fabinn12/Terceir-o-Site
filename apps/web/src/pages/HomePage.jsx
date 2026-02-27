@@ -2,48 +2,45 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
-// 🔌 Depois você liga isso no backend (Supabase).
+// 🔌 Se você estiver usando PocketBase agora, descomente:
 // import pb from "@/lib/pocketbaseClient";
 
 const HomePage = () => {
   const { toast } = useToast();
 
-  // ✅ Agora guardamos só: quanto temos + meta desejada
+  // ✅ Agora: metaDesejada (valor desejado) + arrecadado (quanto temos)
   const [meta, setMeta] = useState({ arrecadado: 0, metaDesejada: 0 });
+
+  // ✅ Ranking volta ao “normal”: vem do backend (admin confirma e aparece aqui)
   const [ranking, setRanking] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
+  const formatBRL = (v) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+      Number(v || 0)
+    );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ==========================
-        // ✅ FRONT (por enquanto)
-        // ==========================
-        // Troque esses valores depois pelo backend.
-        const metaDesejadaFake = 50000; // meta desejada (R$)
-        const arrecadadoFake = 12340; // quanto temos (R$)
+        // =========================
+        // META (por enquanto)
+        // =========================
+        // ✅ Sem backend: você deixa “fake” aqui por enquanto.
+        // Depois você troca por Supabase/PocketBase e mantém o cálculo automático.
+        const metaDesejadaFake = 50000;
+        const arrecadadoFake = 12340;
 
-        setMeta({
-          arrecadado: arrecadadoFake,
-          metaDesejada: metaDesejadaFake,
-        });
+        setMeta({ metaDesejada: metaDesejadaFake, arrecadado: arrecadadoFake });
 
-        // Ranking fake (pra não ficar vazio)
-        setRanking([
-          { id: "1", nome: "João", valor: 250 },
-          { id: "2", nome: "Maria", valor: 200 },
-          { id: "3", nome: "Ana", valor: 150 },
-        ]);
+        // =========================
+        // RANKING (normal — NÃO MEXER)
+        // =========================
+        // 🔌 Quando você tiver pb de volta, descomente e remova o "setRanking([])" abaixo.
 
-        // ==========================
-        // 🔌 BACKEND (depois)
-        // ==========================
-        // const configRes = await pb.collection("configuracoes").getList(1, 1, { $autoCancel: false });
-        // const c = configRes.items[0] || { quanto_temos: 0, meta_total: 0, valor_arrecadado: 0 };
-        // const arrecadado = Number(c.quanto_temos || c.valor_arrecadado || 0);
-        // const metaDesejada = Number(c.meta_total || 0);
-        // setMeta({ arrecadado, metaDesejada });
-        //
+        setRanking([]);
+
         // const rankRes = await pb.collection("contribuicoes").getList(1, 10, {
         //   sort: "-valor",
         //   filter: 'status="confirmado"',
@@ -67,10 +64,10 @@ const HomePage = () => {
   }, [toast]);
 
   // ✅ Cálculos automáticos
-  const falta = Math.max(meta.metaDesejada - meta.arrecadado, 0);
+  const falta = Math.max(Number(meta.metaDesejada) - Number(meta.arrecadado), 0);
   const percentage =
     meta.metaDesejada > 0
-      ? Math.min(100, Math.round((meta.arrecadado / meta.metaDesejada) * 100))
+      ? Math.min(100, Math.round((Number(meta.arrecadado) / Number(meta.metaDesejada)) * 100))
       : 0;
 
   return (
@@ -113,7 +110,7 @@ const HomePage = () => {
       {/* Meta Section */}
       <section id="meta" className="py-16 md:py-24 bg-[#f8fafc]">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-12 border border-gray-100 animate-zoom-lite">
+          <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-12 border border-gray-100 animate-zoom-lite">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-[#1e3a5f]">
               Nossa Meta
             </h2>
@@ -124,46 +121,39 @@ const HomePage = () => {
               </div>
             ) : (
               <>
-                {/* ✅ Agora são 3 cards: meta desejada / temos / falta (automático) */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 mb-10">
-                  <div className="bg-[#1e3a5f]/5 rounded-xl p-6 md:p-8 text-center border border-[#1e3a5f]/10 transition-transform hover:-translate-y-1">
-                    <p className="text-gray-600 font-medium mb-2 text-lg">
+                  {/* Meta desejada */}
+                  <div className="rounded-2xl p-6 md:p-8 text-center border border-gray-200 bg-gray-50 transition-transform hover:-translate-y-1 shadow-sm">
+                    <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Meta (valor desejado)
                     </p>
-                    <p className="text-3xl md:text-5xl font-bold text-[#1e3a5f]">
-                      R{" "}
-                      {meta.metaDesejada.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
+                    <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#1e3a5f]">
+                      {formatBRL(meta.metaDesejada)}
                     </p>
                   </div>
 
-                  <div className="bg-[#0066cc]/5 rounded-xl p-6 md:p-8 text-center border border-[#0066cc]/10 transition-transform hover:-translate-y-1">
-                    <p className="text-gray-600 font-medium mb-2 text-lg">
+                  {/* Quanto temos */}
+                  <div className="rounded-2xl p-6 md:p-8 text-center border border-blue-100 bg-blue-50 transition-transform hover:-translate-y-1 shadow-sm">
+                    <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Quanto temos
                     </p>
-                    <p className="text-3xl md:text-5xl font-bold text-[#0066cc]">
-                      R{" "}
-                      {meta.arrecadado.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
+                    <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#0066cc]">
+                      {formatBRL(meta.arrecadado)}
                     </p>
                   </div>
 
-                  <div className="bg-emerald-500/5 rounded-xl p-6 md:p-8 text-center border border-emerald-500/10 transition-transform hover:-translate-y-1">
-                    <p className="text-gray-600 font-medium mb-2 text-lg">
+                  {/* Quanto falta (auto) */}
+                  <div className="rounded-2xl p-6 md:p-8 text-center border border-emerald-100 bg-emerald-50 transition-transform hover:-translate-y-1 shadow-sm">
+                    <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Quanto falta
                     </p>
-                    <p className="text-3xl md:text-5xl font-bold text-emerald-700">
-                      R{" "}
-                      {falta.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
+                    <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-emerald-700">
+                      {formatBRL(falta)}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-3 bg-gray-50 p-6 rounded-xl border border-gray-100">
+                <div className="space-y-3 bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-sm">
                   <div className="flex justify-between text-sm md:text-base font-semibold text-[#1e3a5f]">
                     <span>Progresso da Arrecadação</span>
                     <span className="text-[#0066cc]">{percentage}%</span>
@@ -177,6 +167,10 @@ const HomePage = () => {
                       <div className="absolute inset-0 bg-white/20 animate-[pulse_2s_ease-in-out_infinite]"></div>
                     </div>
                   </div>
+
+                  <p className="text-xs text-gray-500">
+                    * “Quanto falta” é calculado automaticamente: Meta − Arrecadado.
+                  </p>
                 </div>
               </>
             )}
@@ -184,7 +178,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Ranking Section */}
+      {/* Ranking Section (NORMAL) */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1e3a5f]">
@@ -226,10 +220,7 @@ const HomePage = () => {
                       </span>
                     </div>
                     <span className="font-bold text-[#0066cc] text-lg md:text-xl">
-                      R{" "}
-                      {Number(item.valor).toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatBRL(item.valor)}
                     </span>
                   </div>
                 ))}
