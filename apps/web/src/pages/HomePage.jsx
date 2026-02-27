@@ -127,9 +127,9 @@ const HomePage = () => {
                     <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Meta (valor desejado)
                     </p>
-                    <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#1e3a5f]">
-                      {formatBRL(meta.metaDesejada)}
-                    </p>
+                   <p className="text-[clamp(24px,4vw,48px)] font-extrabold tracking-tight text-[#1e3a5f] break-words overflow-hidden">
+  {formatBRL(meta.metaDesejada)}
+</p>
                   </div>
 
                   {/* Quanto temos */}
@@ -137,9 +137,9 @@ const HomePage = () => {
                     <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Quanto temos
                     </p>
-                    <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#0066cc]">
-                      {formatBRL(meta.arrecadado)}
-                    </p>
+                   <p className="text-[clamp(24px,4vw,48px)] font-extrabold tracking-tight text-[#0066cc] break-words overflow-hidden">
+  {formatBRL(meta.arrecadado)}
+</p>
                   </div>
 
                   {/* Quanto falta (auto) */}
@@ -147,9 +147,9 @@ const HomePage = () => {
                     <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Quanto falta
                     </p>
-                    <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-emerald-700">
-                      {formatBRL(falta)}
-                    </p>
+                    <p className="text-[clamp(24px,4vw,48px)] font-extrabold tracking-tight text-emerald-700 break-words overflow-hidden">
+  {formatBRL(falta)}
+</p>
                   </div>
                 </div>
 
