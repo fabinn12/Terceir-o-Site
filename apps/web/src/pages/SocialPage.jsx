@@ -9,25 +9,25 @@ const SocialPage = () => {
     {
       name: 'WhatsApp',
       logo: whatsappLogo,
-      url: 'https://w.app/w6hgum',
-      accent: 'bg-[#0066cc]',
-      ring: 'ring-[#0066cc]/20',
+      url: 'https://w.app/5wjglf',
+      color: 'bg-[#0066cc]',
+      hover: 'hover:bg-[#0052a3]',
       textColor: 'text-[#0066cc]'
     },
     {
       name: 'Instagram',
       logo: instagramLogo,
       url: 'https://www.instagram.com/cmterceiro?igsh=dmI3cGphZzdkMGI4',
-      accent: 'bg-[#1e3a5f]',
-      ring: 'ring-[#1e3a5f]/20',
+      color: 'bg-[#1e3a5f]',
+      hover: 'hover:bg-[#152b47]',
       textColor: 'text-[#1e3a5f]'
     },
     {
       name: 'TikTok',
       logo: tiktokLogo,
       url: 'https://www.tiktok.com/@cmterceiro?_r=1&_t=ZS-94AoJS4LGCL',
-      accent: 'bg-[#001a4d]',
-      ring: 'ring-[#001a4d]/20',
+      color: 'bg-[#001a4d]',
+      hover: 'hover:bg-[#000d26]',
       textColor: 'text-[#001a4d]'
     }
   ];
@@ -35,9 +35,7 @@ const SocialPage = () => {
   return (
     <div className="min-h-screen pt-24 pb-16 animate-fade-in bg-[#f8fafc]">
       <div className="container mx-auto px-4 max-w-5xl text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">
-          Nossas Redes Sociais
-        </h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">Nossas Redes Sociais</h1>
         <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
           Acompanhe nossa jornada até a formatura, fique por dentro das novidades e interaja com a nossa turma!
         </p>
@@ -49,28 +47,24 @@ const SocialPage = () => {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center group ring-4 ${link.ring}`}
+              className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center group"
             >
-              {/* Logo grande (sem círculo) */}
-              <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center shadow-sm border border-gray-100">
+              {/* Círculo com logo (remove o branco do PNG com blend) */}
+              <div
+                className={`w-24 h-24 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md transition-transform group-hover:scale-110`}
+              >
                 <img
                   src={link.logo}
                   alt={link.name}
-                  className="w-16 h-16 object-contain"
+                  className="w-12 h-12 object-contain mix-blend-multiply"
+                  draggable="false"
                 />
               </div>
 
-              {/* Faixa/bolinha de cor para “identidade” */}
-              <div className={`mt-5 h-2 w-16 rounded-full ${link.accent}`} />
-
-              <h2 className={`text-2xl font-bold ${link.textColor} mt-4 mb-2`}>
-                {link.name}
-              </h2>
+              <h2 className={`text-2xl font-bold ${link.textColor} mb-2`}>{link.name}</h2>
               <p className="text-gray-500 font-medium">Siga-nos no {link.name}</p>
 
-              <div
-                className={`mt-6 px-6 py-2 rounded-full text-sm font-bold text-white ${link.accent} transition-colors w-full group-hover:opacity-95`}
-              >
+              <div className={`mt-6 px-6 py-2 rounded-full text-sm font-bold text-white ${link.color} ${link.hover} transition-colors w-full`}>
                 Acessar
               </div>
             </a>
