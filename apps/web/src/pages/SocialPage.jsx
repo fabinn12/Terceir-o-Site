@@ -54,15 +54,19 @@ const SocialPage = () => {
               className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center"
             >
               
-              {/* CÍRCULO ÚNICO COM CORTE AUTOMÁTICO */}
-              <div className={`w-28 h-28 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md overflow-hidden`}>
+              {/* CÍRCULO EXTERNO */}
+              <div className={`relative w-28 h-28 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md`}>
                 
+                {/* IMAGEM GRANDE */}
                 <img
                   src={link.logo}
                   alt={link.name}
-                  className="w-[90px] h-[90px] object-contain"
+                  className="w-[95px] h-[95px] object-contain"
                   draggable="false"
                 />
+
+                {/* CÍRCULO BRANCO POR CIMA (MÁSCARA) */}
+                <div className="absolute inset-0 rounded-full border-[12px] border-white pointer-events-none"></div>
 
               </div>
 
