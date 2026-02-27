@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import pb from '@/lib/pocketbaseClient';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
