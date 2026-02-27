@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import pb from '@/lib/pocketbaseClient';
 
 export const usePixSubscription = (onUpdate) => {
   useEffect(() => {
