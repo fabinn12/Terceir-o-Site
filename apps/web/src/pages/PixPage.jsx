@@ -96,16 +96,16 @@ const PixPage = () => {
       <div className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 overflow-hidden">
         <span
           className="block truncate"
-          title="SUA_CHAVE_PIX_AQUI"
+          title="terceirocm2026@jim.com"
         >
-          SUA_CHAVE_PIX_AQUI
+          terceirocm2026@jim.com
         </span>
       </div>
 
       <button
         type="button"
         onClick={async () => {
-          const chave = "SUA_CHAVE_PIX_AQUI";
+          const chave = "terceirocm2026@jim.com";
           try {
             await navigator.clipboard.writeText(chave);
             toast({
