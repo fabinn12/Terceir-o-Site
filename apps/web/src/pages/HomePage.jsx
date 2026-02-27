@@ -91,21 +91,31 @@ const HomePage = () => {
             Ajude nossa turma a realizar a formatura dos sonhos!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              to="/pix"
-              className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
-            >
-              Contribuir via Pix
-            </Link>
-            <a
-              href="#meta"
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
-            >
-              Ver Meta
-            </a>
-          </div>
-        </div>
-      </section>
+  <Link
+    to="/pix"
+    className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
+  >
+    Contribuir via Pix
+  </Link>
+
+  <button
+    type="button"
+    onClick={() => {
+      const el = document.getElementById("meta");
+      if (el) {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }}
+    className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
+  >
+    Ver Meta
+  </button>
+</div>
+</div>
+</section>
 
       {/* Meta Section */}
       <section id="meta" className="py-16 md:py-24 bg-[#f8fafc]">
