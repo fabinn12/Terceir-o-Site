@@ -64,31 +64,79 @@ const PixPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* ✅ ESQUERDA: QR CODE (primeiro) */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100 flex flex-col items-center text-center h-full">
-            <div className="bg-[#0066cc] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-6 shadow-md">
-              1
-            </div>
+<div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100 flex flex-col items-center text-center h-full">
+  <div className="bg-[#0066cc] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-6 shadow-md">
+    1
+  </div>
 
-            <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6">Faça o Pagamento</h2>
+  <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6">
+    Faça o Pagamento
+  </h2>
 
-            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-6 w-full flex justify-center">
-              <img
-                src="/qrcode-pix.jpeg"
-                alt="QR Code Pix"
-                className="w-64 h-64 object-contain rounded-xl mix-blend-multiply"
-                loading="lazy"
-              />
-            </div>
+  <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-6 w-full flex justify-center">
+    <img
+      src="/qrcode-pix.jpeg"
+      alt="QR Code Pix"
+      className="w-64 h-64 object-contain rounded-xl mix-blend-multiply"
+      loading="lazy"
+    />
+  </div>
 
-            <p className="text-gray-600 font-medium">
-              Abra o app do seu banco, escolha “Pagar com QR Code” e escaneie a imagem acima.
-            </p>
+  <p className="text-gray-600 font-medium mb-6">
+    Abra o app do seu banco, escolha “Pagar com QR Code” e escaneie a imagem acima.
+  </p>
 
-            <p className="text-xs text-gray-500 mt-3">
-              Se não aparecer, confira se a imagem está em <b>apps/web/public</b> e se o nome está certo.
-            </p>
-          </div>
+  {/* 🔑 BLOCO DA CHAVE PIX */}
+  <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-gray-50 p-5 text-left shadow-sm">
+    <p className="text-sm font-bold text-gray-700 mb-2">
+      Chave Pix
+    </p>
 
+    <div className="flex items-center gap-2">
+      <div className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 overflow-hidden">
+        <span
+          className="block truncate"
+          title="SUA_CHAVE_PIX_AQUI"
+        >
+          SUA_CHAVE_PIX_AQUI
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={async () => {
+          const chave = "SUA_CHAVE_PIX_AQUI";
+          try {
+            await navigator.clipboard.writeText(chave);
+            toast({
+              title: "Copiado!",
+              description: "Chave Pix copiada para a área de transferência.",
+            });
+          } catch (e) {
+            const textarea = document.createElement("textarea");
+            textarea.value = chave;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            toast({
+              title: "Copiado!",
+              description: "Chave Pix copiada.",
+            });
+          }
+        }}
+        className="shrink-0 rounded-xl bg-[#1e3a5f] hover:bg-[#162c47] text-white font-bold px-4 py-2 transition-colors shadow-md"
+      >
+        Copiar
+      </button>
+    </div>
+
+    <p className="text-xs text-gray-500 mt-2">
+      Se preferir, copie a chave e cole manualmente no aplicativo do seu banco.
+    </p>
+  </div>
+</div>
           {/* ✅ DIREITA: FORMULÁRIO */}
           <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100 h-full">
             <div className="flex flex-col items-center text-center mb-8">
