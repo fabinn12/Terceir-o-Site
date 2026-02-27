@@ -1,8 +1,8 @@
 import React from 'react';
 
-import whatsappLogo from './w.png';
-import instagramLogo from './i.png';
-import tiktokLogo from './Tik.png';
+import whatsappLogo from '../assets/w.png';
+import instagramLogo from '../assets/i.png';
+import tiktokLogo from '../assets/Tik.png';
 
 const SocialPage = () => {
   const links = [
