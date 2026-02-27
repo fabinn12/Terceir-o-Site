@@ -27,9 +27,7 @@ const HomePage = () => {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      // =========================
-      // META (por enquanto fake)
-      // =========================
+      // META (fake por enquanto)
       const metaDesejadaFake = 50000;
       const arrecadadoFake = 12340;
 
@@ -38,22 +36,18 @@ const HomePage = () => {
         arrecadado: arrecadadoFake,
       });
 
-      // =========================
-      // RANKING (normal — backend)
-      // =========================
+      // Ranking (por enquanto vazio)
       setRanking([]);
 
-      // 🔌 Quando tiver backend:
+      // Quando tiver backend:
       /*
       const rankRes = await pb.collection("contribuicoes").getList(1, 10, {
         sort: "-valor",
         filter: 'status="confirmado"',
         $autoCancel: false,
       });
-
       setRanking(rankRes.items);
       */
-
     } catch (error) {
       console.error("Erro ao buscar dados da página inicial:", error);
       toast({
