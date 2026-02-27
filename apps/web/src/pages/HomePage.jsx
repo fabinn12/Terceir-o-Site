@@ -164,10 +164,7 @@ const HomePage = () => {
                       <div className="absolute inset-0 bg-white/20 animate-[pulse_2s_ease-in-out_infinite]"></div>
                     </div>
                   </div>
-
-                  <p className="text-xs text-gray-500">
-                    * “Quanto falta” é calculado automaticamente: Meta − Arrecadado.
-                  </p>
+                  
                 </div>
               </>
             )}
