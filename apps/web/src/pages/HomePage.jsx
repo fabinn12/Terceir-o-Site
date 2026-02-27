@@ -25,40 +25,49 @@ const HomePage = () => {
     }).format(Number(v || 0));
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // =========================
-        // META (por enquanto fake)
-        // =========================
-        const metaDesejadaFake = 50000;
-        const arrecadadoFake = 12340;
-        setMeta({ metaDesejada: metaDesejadaFake, arrecadado: arrecadadoFake });
+  const fetchData = async () => {
+    try {
+      // =========================
+      // META (por enquanto fake)
+      // =========================
+      const metaDesejadaFake = 50000;
+      const arrecadadoFake = 12340;
 
-        // =========================
-        // RANKING (normal — backend)
-        // =========================
-        setRanking([]);
+      setMeta({
+        metaDesejada: metaDesejadaFake,
+        arrecadado: arrecadadoFake,
+      });
 
-        // const rankRes = await pb.collection("contribuicoes").getList(1, 10, {
-        //   sort: "-valor",
-        //   filter: 'status="confirmado"',
-        //   $autoCancel: false,
-        // });
-        // setRanking(rankRes.items);
-      } catch (error) {
-        console.error("Erro ao buscar dados da página inicial:", error);
-        toast({
-          title: "Erro de Conexão",
-          description: "Não foi possível carregar os dados. Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+      // =========================
+      // RANKING (normal — backend)
+      // =========================
+      setRanking([]);
 
-    fetchData();
-  }, [toast]);
+      // 🔌 Quando tiver backend:
+      /*
+      const rankRes = await pb.collection("contribuicoes").getList(1, 10, {
+        sort: "-valor",
+        filter: 'status="confirmado"',
+        $autoCancel: false,
+      });
+
+      setRanking(rankRes.items);
+      */
+
+    } catch (error) {
+      console.error("Erro ao buscar dados da página inicial:", error);
+      toast({
+        title: "Erro de Conexão",
+        description: "Não foi possível carregar os dados.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [toast]);
 
   // ✅ Cálculos automáticos
   const falta = useMemo(
