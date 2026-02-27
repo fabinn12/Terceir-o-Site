@@ -83,97 +83,95 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen animate-fade-in">
-{/* Hero Section (Opção 1: Overlay + Glass Card) */}
-<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-  {/* Background */}
-  <div className="absolute inset-0 z-0">
-    <img
-      src="https://horizons-cdn.hostinger.com/f793d602-bb03-400b-8c1c-7e50dc0ea7cb/03849cee368a4d3068655008d98698d7.jpg"
-      alt="Formatura"
-      className="w-full h-full object-cover scale-105"
-    />
+      {/* Hero Section (sem quadro de vidro) */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://horizons-cdn.hostinger.com/f793d602-bb03-400b-8c1c-7e50dc0ea7cb/03849cee368a4d3068655008d98698d7.jpg"
+            alt="Formatura"
+            className="w-full h-full object-cover scale-105"
+          />
 
-    {/* Overlay premium (degradê + vinheta) */}
-    <div className="absolute inset-0 bg-gradient-to-b from-[#001a4d]/85 via-[#001a4d]/55 to-[#0b1220]/90" />
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10)_0%,rgba(0,0,0,0)_55%)]" />
-  </div>
+          {/* Overlay premium (degradê + vinheta) */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#001a4d]/90 via-[#001a4d]/60 to-[#0b1220]/90" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10)_0%,rgba(0,0,0,0.55)_60%,rgba(0,0,0,0.75)_100%)]" />
+        </div>
 
-  {/* Conteúdo */}
-  <div className="relative z-10 w-full max-w-5xl px-4 animate-slide-up">
-    <div className="mx-auto max-w-3xl rounded-3xl border border-white/15 bg-white/10 backdrop-blur-xl shadow-2xl p-8 md:p-10 text-center">
-      {/* Badge (substitui o “TERCEIRÃO” feio lá em cima) */}
-      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white/90 text-sm mb-6">
-        <span className="font-semibold tracking-wide">TERCEIRÃO 2026</span>
-        <span className="opacity-70">•</span>
-        <span className="opacity-90">Formatura</span>
-      </div>
+        {/* Conteúdo (sem card/vidro) */}
+        <div className="relative z-10 text-center px-4 animate-slide-up w-full max-w-4xl mx-auto">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white/90 text-xs md:text-sm mb-6">
+            <span className="font-semibold tracking-wide">TERCEIRÃO 2026</span>
+            <span className="opacity-70">•</span>
+            <span className="opacity-90">Formatura</span>
+          </div>
 
-      <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 drop-shadow-lg leading-tight">
-        Terceirão – Formatura
-      </h1>
+          {/* TÍTULO COM FONTE “ESTILO LOGO” */}
+          <h1 className="font-serif font-black tracking-wide text-4xl md:text-6xl lg:text-7xl text-white mb-4 drop-shadow-lg leading-tight">
+            Terceirão – Formatura
+          </h1>
 
-      <p className="text-lg md:text-2xl text-white/85 mb-10 max-w-2xl mx-auto drop-shadow-md">
-        Ajude nossa turma a realizar a formatura dos sonhos!
-      </p>
+          <p className="text-lg md:text-2xl text-white/85 mb-10 max-w-2xl mx-auto drop-shadow-md">
+            Ajude nossa turma a realizar a formatura dos sonhos!
+          </p>
 
-{/* BOTÕES */}
-<div className="mt-2 flex flex-col items-center gap-4">
-  {/* Linha 1: Pix + Meta */}
-  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-    <Link
-      to="/pix"
-      className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
-    >
-      Contribuir via Pix
-    </Link>
+          {/* BOTÕES (sem vidro/blur) */}
+          <div className="mt-2 flex flex-col items-center gap-4">
+            {/* Linha 1: Pix + Meta */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+              <Link
+                to="/pix"
+                className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
+              >
+                Contribuir via Pix
+              </Link>
 
-    <button
-      type="button"
-      onClick={() => {
-        const el = document.getElementById("meta");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }}
-      className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
-    >
-      Ver Meta
-    </button>
-  </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("meta");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border border-white/35 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
+              >
+                Ver Meta
+              </button>
+            </div>
 
-  {/* Linha 2: Noite de Massas centralizado + pulsando leve */}
-  <Link
-    to="/noite-massas"
-    className="w-full sm:w-auto group relative overflow-hidden rounded-full px-10 py-4 font-extrabold text-lg text-white shadow-lg text-center transition-all hover:scale-105 animate-pulse"
-    style={{
-      background:
-        "linear-gradient(90deg, rgba(255,176,0,1) 0%, rgba(255,124,0,1) 45%, rgba(255,64,0,1) 100%)",
-      animationDuration: "2.2s", // pulsar leve
-    }}
-  >
-    {/* brilho (mantido, mas menos “chamativo”) */}
-    <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
-      <span className="absolute -left-1/2 top-0 h-full w-1/2 bg-white/15 rotate-12 animate-[shine_1.4s_ease-in-out_infinite]" />
-    </span>
+            {/* Linha 2: Noite de Massas centralizado + pulsando leve */}
+            <Link
+              to="/noite-massas"
+              className="w-full sm:w-auto group relative overflow-hidden rounded-full px-10 py-4 font-extrabold text-lg text-white shadow-lg text-center transition-all hover:scale-105 animate-pulse"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(255,176,0,1) 0%, rgba(255,124,0,1) 45%, rgba(255,64,0,1) 100%)",
+                animationDuration: "2.2s",
+              }}
+            >
+              <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="absolute -left-1/2 top-0 h-full w-1/2 bg-white/15 rotate-12 animate-[shine_1.4s_ease-in-out_infinite]" />
+              </span>
 
-    <span className="relative inline-flex items-center justify-center gap-3">
-      <span className="text-2xl drop-shadow-sm">🍝</span>
-      <span>Noite de Massas</span>
-      <span className="ml-1 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-bold border border-white/25">
-        EVENTO
-      </span>
-    </span>
-  </Link>
-</div>
+              <span className="relative inline-flex items-center justify-center gap-3">
+                <span className="text-2xl drop-shadow-sm">🍝</span>
+                <span>Noite de Massas</span>
+                <span className="ml-1 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-bold border border-white/25">
+                  EVENTO
+                </span>
+              </span>
+            </Link>
+          </div>
 
-      {/* mini chamada embaixo (melhorada) */}
-      <div className="mt-6 text-white/80 text-sm md:text-base">
-        <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-2 rounded-full backdrop-blur-sm">
-          <span className="animate-[wiggle_1.2s_ease-in-out_infinite]">🍝</span>
-          Reserve seu ingresso na Noite de Massas!
-        </span>
-      </div>
-    </div>
-  </div>
-</section>
+          {/* mini chamada embaixo (sem blur/vidro pesado) */}
+          <div className="mt-6 text-white/80 text-sm md:text-base">
+            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-2 rounded-full">
+              <span className="animate-[wiggle_1.2s_ease-in-out_infinite]">🍝</span>
+              Reserve seu ingresso na Noite de Massas!
+            </span>
+          </div>
+        </div>
+      </section>
 
       {/* Meta Section */}
       <section id="meta" className="py-16 md:py-24 bg-[#f8fafc] scroll-mt-24">
