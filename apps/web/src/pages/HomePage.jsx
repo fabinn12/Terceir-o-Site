@@ -127,7 +127,7 @@ const HomePage = () => {
                     <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Meta (valor desejado)
                     </p>
-                   <p className="text-[clamp(24px,4vw,48px)] font-extrabold tracking-tight text-[#1e3a5f] break-words overflow-hidden">
+                   <p className="text-[clamp(22px,3.2vw,44px)] font-extrabold tracking-tight text-[#1e3a5f] whitespace-nowrap">
   {formatBRL(meta.metaDesejada)}
 </p>
                   </div>
@@ -137,7 +137,7 @@ const HomePage = () => {
                     <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Quanto temos
                     </p>
-                   <p className="text-[clamp(24px,4vw,48px)] font-extrabold tracking-tight text-[#0066cc] break-words overflow-hidden">
+                <p className="text-[clamp(22px,3.2vw,44px)] font-extrabold tracking-tight text-[#0066cc] whitespace-nowrap">
   {formatBRL(meta.arrecadado)}
 </p>
                   </div>
@@ -147,7 +147,7 @@ const HomePage = () => {
                     <p className="text-gray-600 font-semibold mb-2 text-base md:text-lg">
                       Quanto falta
                     </p>
-                    <p className="text-[clamp(24px,4vw,48px)] font-extrabold tracking-tight text-emerald-700 break-words overflow-hidden">
+                  <p className="text-[clamp(22px,3.2vw,44px)] font-extrabold tracking-tight text-emerald-700 whitespace-nowrap">
   {formatBRL(falta)}
 </p>
                   </div>
