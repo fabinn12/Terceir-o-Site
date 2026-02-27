@@ -11,28 +11,30 @@ const SocialPage = () => {
       logo: whatsappLogo,
       url: 'https://w.app/w6hgum',
       color: 'bg-[#0066cc]',
-      textColor: 'text-[#0066cc]'
+      textColor: 'text-[#0066cc]',
+      description: 'Fale conosco para dúvidas e informações'
     },
     {
       name: 'Instagram',
       logo: instagramLogo,
       url: 'https://www.instagram.com/cmterceiro?igsh=dmI3cGphZzdkMGI4',
       color: 'bg-[#1e3a5f]',
-      textColor: 'text-[#1e3a5f]'
+      textColor: 'text-[#1e3a5f]',
+      description: 'Acompanhe nossas novidades'
     },
     {
       name: 'TikTok',
       logo: tiktokLogo,
       url: 'https://www.tiktok.com/@cmterceiro?_r=1&_t=ZS-94AoJS4LGCL',
       color: 'bg-[#001a4d]',
-      textColor: 'text-[#001a4d]'
+      textColor: 'text-[#001a4d]',
+      description: 'Veja nossos conteúdos e momentos'
     }
   ];
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-[#f8fafc]">
       <div className="container mx-auto px-4 max-w-5xl text-center">
-
         <h1 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">
           Nossas Redes Sociais
         </h1>
@@ -50,16 +52,15 @@ const SocialPage = () => {
               rel="noopener noreferrer"
               className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col items-center"
             >
-              {/* Círculo externo */}
-              <div className={`w-24 h-24 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md`}>
+              {/* Círculo maior */}
+              <div className={`w-28 h-28 rounded-full ${link.color} flex items-center justify-center mb-6 shadow-md`}>
                 
-                {/* Círculo interno branco */}
-                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
+                {/* Miolo branco */}
+                <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center">
                   <img
                     src={link.logo}
                     alt={link.name}
-                    className="w-10 h-10 object-contain"
-                    draggable="false"
+                    className="w-14 h-14 object-contain"
                   />
                 </div>
 
@@ -69,15 +70,13 @@ const SocialPage = () => {
                 {link.name}
               </h2>
 
-              <p className="text-gray-500 font-medium">
-                Siga-nos no {link.name}
+              <p className="text-gray-500 font-medium text-center">
+                {link.description}
               </p>
 
-              <button
-                className={`mt-6 px-6 py-2 rounded-full text-sm font-bold text-white ${link.color} w-full transition-opacity hover:opacity-90`}
-              >
+              <div className={`mt-6 px-6 py-2 rounded-full text-sm font-bold text-white ${link.color} w-full text-center`}>
                 Acessar
-              </button>
+              </div>
             </a>
           ))}
         </div>
