@@ -7,6 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Trash2, Edit2, Save, X, CheckCircle } from 'lucide-react';
 import { usePixSubscription } from '@/hooks/usePixSubscription';
 
+// ⚠️ Se o pb não estiver importado em algum lugar global, descomente:
+// import pb from "@/lib/pocketbaseClient";
+
 const AdminPanel = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,7 +18,9 @@ const AdminPanel = () => {
 
   // Data States
   const [metaRecord, setMetaRecord] = useState(null);
-  const [metaForm, setMetaForm] = useState({ quanto_temos: '', quanto_falta: '' });
+
+  // ✅ Agora: meta_total (meta desejada) e quanto_temos (arrecadado)
+  const [metaForm, setMetaForm] = useState({ meta_total: '', quanto_temos: '' });
   const [isSavingMeta, setIsSavingMeta] = useState(false);
 
   const [ranking, setRanking] = useState([]);
@@ -30,24 +35,47 @@ const AdminPanel = () => {
   const [pixRequests, setPixRequests] = useState([]);
   const [isProcessingPix, setIsProcessingPix] = useState(false);
 
+  const formatBRL = (v) =>
+    Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+
+  const num = (v) => {
+    const n = parseFloat(String(v).replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  };
+
   const fetchAllData = useCallback(async () => {
     try {
       // Fetch Meta
       const metaList = await pb.collection('configuracoes').getList(1, 1, { $autoCancel: false });
+
       if (metaList.items.length > 0) {
         const record = metaList.items[0];
         setMetaRecord(record);
+
+        // ✅ Compatibilidade:
+        // - Se já tiver meta_total, usa ela.
+        // - Se não tiver, tenta derivar de quanto_temos + quanto_falta.
+        const quantoTemos = record.quanto_temos ?? record.valor_arrecadado ?? 0;
+        const metaTotal =
+          record.meta_total && Number(record.meta_total) > 0
+            ? record.meta_total
+            : (Number(quantoTemos) || 0) + (Number(record.quanto_falta) || 0);
+
         setMetaForm({
-          quanto_temos: record.quanto_temos || record.valor_arrecadado || 0,
-          quanto_falta: record.quanto_falta || 0
+          meta_total: metaTotal,
+          quanto_temos: quantoTemos
         });
       } else {
         // Create default if missing
         const newRecord = await pb.collection('configuracoes').create({
-          quanto_temos: 0, quanto_falta: 0, meta_total: 0, valor_arrecadado: 0
+          quanto_temos: 0,
+          quanto_falta: 0,
+          meta_total: 0,
+          valor_arrecadado: 0
         }, { $autoCancel: false });
+
         setMetaRecord(newRecord);
-        setMetaForm({ quanto_temos: 0, quanto_falta: 0 });
+        setMetaForm({ meta_total: 0, quanto_temos: 0 });
       }
 
       // Fetch Ranking
@@ -66,9 +94,12 @@ const AdminPanel = () => {
           link_whatsapp: record.link_whatsapp || ''
         });
       } else {
-        // Create default if missing
         const newRecord = await pb.collection('noite_massas').create({
-          descricao: 'Noite de Massas', data: '', horario: '', local: '', link_whatsapp: ''
+          descricao: 'Noite de Massas',
+          data: '',
+          horario: '',
+          local: '',
+          link_whatsapp: ''
         }, { $autoCancel: false });
         setMassasRecord(newRecord);
         setMassasForm({ data: '', horario: '', local: '', link_whatsapp: '' });
@@ -98,9 +129,7 @@ const AdminPanel = () => {
 
   // Real-time subscription for PIX requests
   usePixSubscription(() => {
-    if (isAuthenticated) {
-      fetchAllData();
-    }
+    if (isAuthenticated) fetchAllData();
   });
 
   const handleLogin = (e) => {
@@ -125,11 +154,19 @@ const AdminPanel = () => {
   const handleSaveMeta = async () => {
     setIsSavingMeta(true);
     try {
+      const metaTotal = num(metaForm.meta_total);
+      const quantoTemos = num(metaForm.quanto_temos);
+
+      // ✅ Falta automático:
+      const faltaCalc = Math.max(metaTotal - quantoTemos, 0);
+
+      // ✅ Mantém compatibilidade com seu backend antigo:
+      // salva meta_total, quanto_temos, valor_arrecadado e também quanto_falta (calculado)
       const data = {
-        quanto_temos: parseFloat(metaForm.quanto_temos) || 0,
-        quanto_falta: parseFloat(metaForm.quanto_falta) || 0,
-        valor_arrecadado: parseFloat(metaForm.quanto_temos) || 0,
-        meta_total: (parseFloat(metaForm.quanto_temos) || 0) + (parseFloat(metaForm.quanto_falta) || 0)
+        meta_total: metaTotal,
+        quanto_temos: quantoTemos,
+        valor_arrecadado: quantoTemos,
+        quanto_falta: faltaCalc
       };
 
       if (metaRecord && metaRecord.id) {
@@ -138,7 +175,7 @@ const AdminPanel = () => {
         const newRecord = await pb.collection('configuracoes').create(data, { $autoCancel: false });
         setMetaRecord(newRecord);
       }
-      
+
       toast({ title: "Sucesso", description: "Meta atualizada com sucesso!" });
       fetchAllData();
     } catch (error) {
@@ -167,7 +204,7 @@ const AdminPanel = () => {
         await pb.collection('contribuicoes').create(data, { $autoCancel: false });
         toast({ title: "Sucesso", description: "Contribuição adicionada!" });
       }
-      
+
       setRankingForm({ nome: '', valor: '' });
       setEditingRankingId(null);
       fetchAllData();
@@ -205,7 +242,7 @@ const AdminPanel = () => {
         horario: massasForm.horario,
         local: massasForm.local,
         link_whatsapp: massasForm.link_whatsapp,
-        descricao: `Data: ${massasForm.data} | Horário: ${massasForm.horario} | Local: ${massasForm.local}` // Fallback
+        descricao: `Data: ${massasForm.data} | Horário: ${massasForm.horario} | Local: ${massasForm.local}`
       };
 
       if (massasRecord && massasRecord.id) {
@@ -214,7 +251,7 @@ const AdminPanel = () => {
         const newRecord = await pb.collection('noite_massas').create(data, { $autoCancel: false });
         setMassasRecord(newRecord);
       }
-      
+
       toast({ title: "Sucesso", description: "Informações do evento atualizadas!" });
       fetchAllData();
     } catch (error) {
@@ -229,7 +266,7 @@ const AdminPanel = () => {
   const handleApprovePix = async (pix) => {
     if (!window.confirm(`Aprovar PIX de ${pix.nome} no valor de R$ ${pix.valor}?`)) return;
     setIsProcessingPix(true);
-    
+
     try {
       // 1. Validate record exists
       try {
@@ -245,7 +282,7 @@ const AdminPanel = () => {
 
       // 2. Update PIX status
       await pb.collection('pix_requests').update(pix.id, { status: 'confirmado' }, { $autoCancel: false });
-      
+
       // 3. Add to Ranking
       await pb.collection('contribuicoes').create({
         nome: pix.nome,
@@ -253,19 +290,28 @@ const AdminPanel = () => {
         status: 'confirmado'
       }, { $autoCancel: false });
 
-      // 4. Update Meta (Optional but good UX)
+      // 4. Update Meta (agora baseado na META TOTAL)
       if (metaRecord && metaRecord.id) {
-        const novoValor = (metaRecord.quanto_temos || metaRecord.valor_arrecadado || 0) + pix.valor;
-        const novaFalta = Math.max(0, (metaRecord.quanto_falta || 0) - pix.valor);
+        const atualTemos = Number(metaRecord.quanto_temos || metaRecord.valor_arrecadado || 0);
+        const novoTemos = atualTemos + pix.valor;
+
+        const metaTotal =
+          Number(metaRecord.meta_total) > 0
+            ? Number(metaRecord.meta_total)
+            : atualTemos + Number(metaRecord.quanto_falta || 0);
+
+        const novaFalta = Math.max(0, metaTotal - novoTemos);
+
         await pb.collection('configuracoes').update(metaRecord.id, {
-          quanto_temos: novoValor,
-          valor_arrecadado: novoValor,
+          meta_total: metaTotal,
+          quanto_temos: novoTemos,
+          valor_arrecadado: novoTemos,
           quanto_falta: novaFalta
         }, { $autoCancel: false });
       }
 
       toast({ title: "Sucesso", description: "PIX aprovado e adicionado ao ranking!" });
-      await fetchAllData(); // Wait for list refresh
+      await fetchAllData();
     } catch (error) {
       console.error("Erro ao aprovar PIX:", error);
       toast({ title: "Erro", description: `Erro ao atualizar PIX: ${error.message}`, variant: "destructive" });
@@ -277,7 +323,7 @@ const AdminPanel = () => {
   const handleDeletePix = async (id) => {
     if (!window.confirm("Tem certeza que deseja deletar esta solicitação de PIX?")) return;
     setIsProcessingPix(true);
-    
+
     try {
       // 1. Validate record exists
       try {
@@ -294,7 +340,7 @@ const AdminPanel = () => {
       // 2. Delete record
       await pb.collection('pix_requests').delete(id, { $autoCancel: false });
       toast({ title: "Sucesso", description: "Solicitação removida!" });
-      await fetchAllData(); // Wait for list refresh
+      await fetchAllData();
     } catch (error) {
       console.error("Erro ao remover solicitação PIX:", error);
       toast({ title: "Erro", description: `Erro ao deletar PIX: ${error.message}`, variant: "destructive" });
@@ -339,6 +385,11 @@ const AdminPanel = () => {
     );
   }
 
+  // ✅ Valores calculados para exibir
+  const metaTotalUI = num(metaForm.meta_total);
+  const temosUI = num(metaForm.quanto_temos);
+  const faltaUI = Math.max(metaTotalUI - temosUI, 0);
+
   return (
     <div className="min-h-screen pt-24 pb-16 bg-[#f8fafc]">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -352,9 +403,18 @@ const AdminPanel = () => {
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 md:p-8 animate-slide-up">
           <Tabs defaultValue="meta" className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-8 bg-[#1e3a5f]/5 p-1.5 rounded-xl h-auto gap-1">
-              <TabsTrigger value="meta" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5">Meta</TabsTrigger>
-              <TabsTrigger value="ranking" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5">Ranking</TabsTrigger>
-              <TabsTrigger value="massas" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5">Noite de Massas</TabsTrigger>
+              <TabsTrigger value="meta" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5">
+                Meta
+              </TabsTrigger>
+
+              <TabsTrigger value="ranking" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5">
+                Ranking
+              </TabsTrigger>
+
+              <TabsTrigger value="massas" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5">
+                Noite de Massas
+              </TabsTrigger>
+
               <TabsTrigger value="pix" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-white rounded-lg transition-all py-2.5 relative">
                 PIX Requests
                 {pixRequests.filter(p => p.status === 'pendente').length > 0 && (
@@ -365,55 +425,75 @@ const AdminPanel = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* META TAB */}
+            {/* ✅ META TAB (NOVA) */}
             <TabsContent value="meta" className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
+                {/* Form */}
                 <div className="space-y-5 bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-100">
                   <h3 className="text-xl font-bold text-[#1e3a5f]">Atualizar Valores</h3>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="meta_total" className="text-gray-700 font-semibold">Meta (valor desejado) (R$)</Label>
+                    <Input
+                      id="meta_total"
+                      type="number"
+                      step="0.01"
+                      value={metaForm.meta_total}
+                      onChange={(e) => setMetaForm({ ...metaForm, meta_total: e.target.value })}
+                      className="focus-visible:ring-[#0066cc] p-3"
+                      placeholder="50000"
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="quanto_temos" className="text-gray-700 font-semibold">Quanto temos (R$)</Label>
-                    <Input 
-                      id="quanto_temos" 
-                      type="number" 
+                    <Input
+                      id="quanto_temos"
+                      type="number"
                       step="0.01"
                       value={metaForm.quanto_temos}
-                      onChange={(e) => setMetaForm({...metaForm, quanto_temos: e.target.value})}
+                      onChange={(e) => setMetaForm({ ...metaForm, quanto_temos: e.target.value })}
                       className="focus-visible:ring-[#0066cc] p-3"
+                      placeholder="12340"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="quanto_falta" className="text-gray-700 font-semibold">Quanto falta (R$)</Label>
-                    <Input 
-                      id="quanto_falta" 
-                      type="number" 
-                      step="0.01"
-                      value={metaForm.quanto_falta}
-                      onChange={(e) => setMetaForm({...metaForm, quanto_falta: e.target.value})}
-                      className="focus-visible:ring-[#0066cc] p-3"
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleSaveMeta} 
+
+                  <Button
+                    onClick={handleSaveMeta}
                     disabled={isSavingMeta}
                     className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white shadow-md hover:shadow-lg transition-all py-6 text-lg mt-4"
                   >
                     {isSavingMeta ? 'Salvando...' : 'Salvar Meta'}
                   </Button>
+
+                  <p className="text-xs text-gray-500">
+                    * “Quanto falta” é calculado automaticamente: <b>Meta</b> − <b>Quanto temos</b>.
+                  </p>
                 </div>
 
+                {/* Valores atuais */}
                 <div className="space-y-4 bg-[#1e3a5f]/5 p-6 md:p-8 rounded-2xl border border-[#1e3a5f]/10 flex flex-col justify-center">
                   <h3 className="text-xl font-bold text-[#1e3a5f] text-center mb-6">Valores Atuais</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                      <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wider">Temos</p>
-                      <p className="text-3xl font-bold text-[#0066cc]">
-                        R$ {Number(metaRecord?.quanto_temos || metaRecord?.valor_arrecadado || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                      <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wider">Meta</p>
+                      <p className="text-3xl font-bold text-[#1e3a5f] whitespace-nowrap">
+                        R$ {formatBRL(metaTotalUI)}
                       </p>
                     </div>
+
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                      <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wider">Temos</p>
+                      <p className="text-3xl font-bold text-[#0066cc] whitespace-nowrap">
+                        R$ {formatBRL(temosUI)}
+                      </p>
+                    </div>
+
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                       <p className="text-sm text-gray-500 mb-2 font-medium uppercase tracking-wider">Falta</p>
-                      <p className="text-3xl font-bold text-[#1e3a5f]">
-                        R$ {Number(metaRecord?.quanto_falta || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                      <p className="text-3xl font-bold text-emerald-700 whitespace-nowrap">
+                        R$ {formatBRL(faltaUI)}
                       </p>
                     </div>
                   </div>
@@ -430,38 +510,38 @@ const AdminPanel = () => {
                 <form onSubmit={handleSaveRanking} className="flex flex-col md:flex-row gap-4 items-end">
                   <div className="space-y-2 flex-grow w-full">
                     <Label htmlFor="nome" className="text-gray-700 font-semibold">Nome</Label>
-                    <Input 
-                      id="nome" 
+                    <Input
+                      id="nome"
                       required
                       value={rankingForm.nome}
-                      onChange={(e) => setRankingForm({...rankingForm, nome: e.target.value})}
+                      onChange={(e) => setRankingForm({ ...rankingForm, nome: e.target.value })}
                       className="focus-visible:ring-[#0066cc] p-3"
                     />
                   </div>
                   <div className="space-y-2 flex-grow w-full">
                     <Label htmlFor="valor" className="text-gray-700 font-semibold">Valor (R$)</Label>
-                    <Input 
-                      id="valor" 
-                      type="number" 
+                    <Input
+                      id="valor"
+                      type="number"
                       step="0.01"
                       required
                       value={rankingForm.valor}
-                      onChange={(e) => setRankingForm({...rankingForm, valor: e.target.value})}
+                      onChange={(e) => setRankingForm({ ...rankingForm, valor: e.target.value })}
                       className="focus-visible:ring-[#0066cc] p-3"
                     />
                   </div>
                   <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={isSavingRanking}
                       className="flex-grow md:flex-grow-0 bg-[#0066cc] hover:bg-[#0052a3] text-white shadow-md hover:shadow-lg transition-all py-6 px-8"
                     >
                       {isSavingRanking ? 'Salvando...' : editingRankingId ? 'Atualizar' : 'Adicionar'}
                     </Button>
                     {editingRankingId && (
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         className="py-6 px-4 border-gray-300"
                         onClick={() => {
                           setEditingRankingId(null);
@@ -487,26 +567,28 @@ const AdminPanel = () => {
                   <tbody className="divide-y divide-gray-100">
                     {ranking.length === 0 ? (
                       <tr>
-                        <td colSpan="3" className="px-6 py-12 text-center text-gray-500 text-base">Nenhum contribuinte encontrado.</td>
+                        <td colSpan="3" className="px-6 py-12 text-center text-gray-500 text-base">
+                          Nenhum contribuinte encontrado.
+                        </td>
                       </tr>
                     ) : (
                       ranking.map((item) => (
                         <tr key={item.id} className="bg-white hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4 font-medium text-gray-900 text-base">{item.nome}</td>
                           <td className="px-6 py-4 text-[#0066cc] font-bold text-base">
-                            R$ {item.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                            R$ {item.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </td>
                           <td className="px-6 py-4 text-right space-x-2">
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleEditRanking(item)}
                               className="text-[#0066cc] border-[#0066cc] hover:bg-[#0066cc] hover:text-white transition-colors"
                             >
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button 
-                              variant="destructive" 
+                            <Button
+                              variant="destructive"
                               size="sm"
                               onClick={() => handleDeleteRanking(item.id)}
                               className="transition-colors"
@@ -527,25 +609,25 @@ const AdminPanel = () => {
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="space-y-5 bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-100">
                   <h3 className="text-xl font-bold text-[#1e3a5f]">Detalhes do Evento</h3>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="data" className="text-gray-700 font-semibold">Data</Label>
-                      <Input 
-                        id="data" 
-                        type="date" 
+                      <Input
+                        id="data"
+                        type="date"
                         value={massasForm.data}
-                        onChange={(e) => setMassasForm({...massasForm, data: e.target.value})}
+                        onChange={(e) => setMassasForm({ ...massasForm, data: e.target.value })}
                         className="focus-visible:ring-[#0066cc] p-3"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="horario" className="text-gray-700 font-semibold">Horário</Label>
-                      <Input 
-                        id="horario" 
-                        type="time" 
+                      <Input
+                        id="horario"
+                        type="time"
                         value={massasForm.horario}
-                        onChange={(e) => setMassasForm({...massasForm, horario: e.target.value})}
+                        onChange={(e) => setMassasForm({ ...massasForm, horario: e.target.value })}
                         className="focus-visible:ring-[#0066cc] p-3"
                       />
                     </div>
@@ -553,11 +635,11 @@ const AdminPanel = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="local" className="text-gray-700 font-semibold">Local</Label>
-                    <Input 
-                      id="local" 
-                      type="text" 
+                    <Input
+                      id="local"
+                      type="text"
                       value={massasForm.local}
-                      onChange={(e) => setMassasForm({...massasForm, local: e.target.value})}
+                      onChange={(e) => setMassasForm({ ...massasForm, local: e.target.value })}
                       placeholder="Ex: Salão Paroquial"
                       className="focus-visible:ring-[#0066cc] p-3"
                     />
@@ -565,18 +647,18 @@ const AdminPanel = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="link_whatsapp" className="text-gray-700 font-semibold">Link WhatsApp (Ingressos)</Label>
-                    <Input 
-                      id="link_whatsapp" 
-                      type="url" 
+                    <Input
+                      id="link_whatsapp"
+                      type="url"
                       value={massasForm.link_whatsapp}
-                      onChange={(e) => setMassasForm({...massasForm, link_whatsapp: e.target.value})}
+                      onChange={(e) => setMassasForm({ ...massasForm, link_whatsapp: e.target.value })}
                       placeholder="https://wa.me/..."
                       className="focus-visible:ring-[#0066cc] p-3"
                     />
                   </div>
 
-                  <Button 
-                    onClick={handleSaveMassas} 
+                  <Button
+                    onClick={handleSaveMassas}
                     disabled={isSavingMassas}
                     className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white shadow-md hover:shadow-lg transition-all py-6 text-lg mt-6"
                   >
@@ -632,7 +714,9 @@ const AdminPanel = () => {
                   <tbody className="divide-y divide-gray-100">
                     {pixRequests.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="px-6 py-12 text-center text-gray-500 text-base">Nenhuma solicitação PIX encontrada.</td>
+                        <td colSpan="6" className="px-6 py-12 text-center text-gray-500 text-base">
+                          Nenhuma solicitação PIX encontrada.
+                        </td>
                       </tr>
                     ) : (
                       pixRequests.map((pix) => (
@@ -642,13 +726,13 @@ const AdminPanel = () => {
                           </td>
                           <td className="px-6 py-4 font-medium text-gray-900 text-base">{pix.nome}</td>
                           <td className="px-6 py-4 text-[#0066cc] font-bold text-base">
-                            R$ {pix.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                            R$ {pix.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </td>
                           <td className="px-6 py-4 text-gray-600">{pix.whatsapp || '-'}</td>
                           <td className="px-6 py-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                              pix.status === 'confirmado' 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
+                              pix.status === 'confirmado'
+                                ? 'bg-green-100 text-green-800 border border-green-200'
                                 : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
                             }`}>
                               {pix.status}
@@ -656,9 +740,9 @@ const AdminPanel = () => {
                           </td>
                           <td className="px-6 py-4 text-right space-x-2">
                             {pix.status !== 'confirmado' && (
-                              <Button 
-                                size="sm" 
-                                onClick={() => handleApprovePix(pix)} 
+                              <Button
+                                size="sm"
+                                onClick={() => handleApprovePix(pix)}
                                 disabled={isProcessingPix}
                                 className="bg-green-600 hover:bg-green-700 text-white transition-colors disabled:opacity-50"
                                 title="Aprovar e adicionar ao ranking"
@@ -666,9 +750,9 @@ const AdminPanel = () => {
                                 <CheckCircle className="w-4 h-4 mr-1" /> Aprovar
                               </Button>
                             )}
-                            <Button 
-                              variant="destructive" 
-                              size="sm" 
+                            <Button
+                              variant="destructive"
+                              size="sm"
                               onClick={() => handleDeletePix(pix.id)}
                               disabled={isProcessingPix}
                               className="transition-colors disabled:opacity-50"
