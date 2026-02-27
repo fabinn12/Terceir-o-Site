@@ -74,6 +74,15 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-8deg) translateY(0); }
+  50% { transform: rotate(8deg) translateY(-1px); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-120%) rotate(12deg); }
+  100% { transform: translateX(320%) rotate(12deg); }
+}
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
