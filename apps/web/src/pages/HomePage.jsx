@@ -116,51 +116,53 @@ const HomePage = () => {
         Ajude nossa turma a realizar a formatura dos sonhos!
       </p>
 
-      {/* BOTÕES (mantidos) */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <Link
-          to="/pix"
-          className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
-        >
-          Contribuir via Pix
-        </Link>
+{/* BOTÕES */}
+<div className="mt-2 flex flex-col items-center gap-4">
+  {/* Linha 1: Pix + Meta */}
+  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+    <Link
+      to="/pix"
+      className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
+    >
+      Contribuir via Pix
+    </Link>
 
-        <button
-          type="button"
-          onClick={() => {
-            const el = document.getElementById("meta");
-            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
-        >
-          Ver Meta
-        </button>
+    <button
+      type="button"
+      onClick={() => {
+        const el = document.getElementById("meta");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }}
+      className="w-full sm:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 shadow-lg text-center"
+    >
+      Ver Meta
+    </button>
+  </div>
 
-        {/* ✅ BOTÃO CHAMATIVO NOITE DE MASSAS (mantido) */}
-        <Link
-          to="/noite-massas"
-          className="w-full sm:w-auto group relative overflow-hidden rounded-full px-8 py-4 font-extrabold text-lg text-white shadow-lg text-center transition-all hover:scale-105"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(255,176,0,1) 0%, rgba(255,124,0,1) 45%, rgba(255,64,0,1) 100%)",
-          }}
-        >
-          {/* brilho animado */}
-          <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="absolute -left-1/2 top-0 h-full w-1/2 bg-white/20 rotate-12 animate-[shine_1.1s_ease-in-out_infinite]" />
-          </span>
+  {/* Linha 2: Noite de Massas centralizado + pulsando leve */}
+  <Link
+    to="/noite-massas"
+    className="w-full sm:w-auto group relative overflow-hidden rounded-full px-10 py-4 font-extrabold text-lg text-white shadow-lg text-center transition-all hover:scale-105 animate-pulse"
+    style={{
+      background:
+        "linear-gradient(90deg, rgba(255,176,0,1) 0%, rgba(255,124,0,1) 45%, rgba(255,64,0,1) 100%)",
+      animationDuration: "2.2s", // pulsar leve
+    }}
+  >
+    {/* brilho (mantido, mas menos “chamativo”) */}
+    <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+      <span className="absolute -left-1/2 top-0 h-full w-1/2 bg-white/15 rotate-12 animate-[shine_1.4s_ease-in-out_infinite]" />
+    </span>
 
-          <span className="relative inline-flex items-center justify-center gap-3">
-            <span className="text-2xl drop-shadow-sm animate-[wiggle_1.2s_ease-in-out_infinite]">
-              🍝
-            </span>
-            <span>Noite de Massas</span>
-            <span className="ml-1 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-bold border border-white/25">
-              EVENTO
-            </span>
-          </span>
-        </Link>
-      </div>
+    <span className="relative inline-flex items-center justify-center gap-3">
+      <span className="text-2xl drop-shadow-sm">🍝</span>
+      <span>Noite de Massas</span>
+      <span className="ml-1 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-bold border border-white/25">
+        EVENTO
+      </span>
+    </span>
+  </Link>
+</div>
 
       {/* mini chamada embaixo (melhorada) */}
       <div className="mt-6 text-white/80 text-sm md:text-base">
