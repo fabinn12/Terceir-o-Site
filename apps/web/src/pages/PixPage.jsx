@@ -1,162 +1,194 @@
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2, QrCode } from "lucide-react";
+import React, { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+const PixPage = () => {
+  const { toast } = useToast();
 
-export default function PixPage() {
-  const [amount, setAmount] = useState("");
-  const [name, setName] = useState("");
-  const [sent, setSent] = useState(false);
+  const [formData, setFormData] = useState({ nome: "", valor: "", whatsapp: "" });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  const amountNumber = useMemo(() => {
-    const clean = String(amount).replace(",", ".").replace(/[^\d.]/g, "");
-    const n = Number(clean);
-    return Number.isFinite(n) ? n : 0;
-  }, [amount]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const canConfirm = name.trim().length >= 2 && amountNumber > 0;
+    // validação
+    const valorNum = Number(String(formData.valor).replace(",", "."));
+    if (!formData.nome || !formData.valor || !Number.isFinite(valorNum) || valorNum <= 0) {
+      toast({
+        title: "Aviso",
+        description: "Por favor, preencha o nome e um valor válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      // 🔥 Por enquanto (sem backend): só confirma na tela.
+      // Depois a gente troca isso por Supabase (insert em pix_requests).
+      await new Promise((r) => setTimeout(r, 450));
+
+      setSuccess(true);
+      setFormData({ nome: "", valor: "", whatsapp: "" });
+
+      toast({
+        title: "Solicitação enviada",
+        description: "Em até 24 horas confirmaremos e você entra no ranking.",
+      });
+    } catch (err) {
+      const msg = err?.message || "Ocorreu um erro ao enviar. Tente novamente.";
+      setError(msg);
+      toast({
+        title: "Erro",
+        description: msg,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-[calc(100vh-120px)] bg-background">
-      <div className="mx-auto w-full max-w-5xl px-4 py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="mb-6"
-        >
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Contribuir via Pix
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Primeiro faça o Pix pelo QR Code. Depois preencha seu nome e o valor e confirme o envio.
-          </p>
-        </motion.div>
+    <div className="min-h-screen pt-24 pb-16 animate-fade-in bg-[#f8fafc]">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <h1 className="text-4xl md:text-5xl font-bold text-center text-[#1e3a5f] mb-4">
+          Contribuir via Pix
+        </h1>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* ESQUERDA: QR CODE (vem primeiro) */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.05 }}
-          >
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <QrCode className="h-5 w-5" />
-                  QR Code do Pix
-                </CardTitle>
-              </CardHeader>
+        <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto text-lg">
+          Primeiro faça o Pix pelo QR Code. Depois confirme o envio preenchendo seus dados.
+        </p>
 
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Escaneie o QR Code abaixo e faça o Pix.
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* ✅ ESQUERDA: QR CODE (primeiro) */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100 flex flex-col items-center text-center h-full">
+            <div className="bg-[#0066cc] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-6 shadow-md">
+              1
+            </div>
+
+            <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6">Faça o Pagamento</h2>
+
+            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-6 w-full flex justify-center">
+              <img
+                src="/qrcode-pix.jpeg"
+                alt="QR Code Pix"
+                className="w-64 h-64 object-contain rounded-xl mix-blend-multiply"
+                loading="lazy"
+              />
+            </div>
+
+            <p className="text-gray-600 font-medium">
+              Abra o app do seu banco, escolha “Pagar com QR Code” e escaneie a imagem acima.
+            </p>
+
+            <p className="text-xs text-gray-500 mt-3">
+              Se não aparecer, confira se a imagem está em <b>apps/web/public</b> e se o nome está certo.
+            </p>
+          </div>
+
+          {/* ✅ DIREITA: FORMULÁRIO */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100 h-full">
+            <div className="flex flex-col items-center text-center mb-8">
+              <div className="bg-[#1e3a5f] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-6 shadow-md">
+                2
+              </div>
+              <h2 className="text-2xl font-bold text-[#1e3a5f]">Confirme o Envio</h2>
+            </div>
+
+            {success ? (
+              <div className="bg-green-50 border-2 border-green-300 text-green-900 p-8 rounded-xl text-center animate-zoom-lite">
+                <div className="text-5xl mb-4">✅</div>
+                <h3 className="font-extrabold text-2xl mb-3 text-green-900">
+                  Solicitação Enviada!
+                </h3>
+                <p className="text-green-800 mb-6 font-medium">
+                  Em até <b>24 horas</b> vamos conferir e, após confirmar, você aparece no ranking.
                 </p>
-
-                <img
-                  src="/qrcode-pix.jpg"
-                  alt="QR Code Pix - Terceirão"
-                  className="w-full rounded-2xl border bg-white"
-                  loading="lazy"
-                />
-
-                <p className="text-xs text-muted-foreground">
-                  Se não conseguir escanear, tente aumentar o brilho da tela ou aproximar a câmera.
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* DIREITA: CADASTRO/CONFIRMAÇÃO */}
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.1 }}
-          >
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl">Confirmar contribuição</CardTitle>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Seu nome</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Ex: João"
-                    autoComplete="name"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Valor enviado (R$)</Label>
-                  <Input
-                    id="amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Ex: 25,00"
-                    inputMode="decimal"
-                  />
-                </div>
-
-                <div className="rounded-xl border bg-card p-4">
-                  <p className="text-sm text-muted-foreground">Valor informado</p>
-                  <p className="mt-1 text-2xl font-semibold text-foreground">
-                    R$ {amountNumber.toFixed(2)}
-                  </p>
-                </div>
-
-                {!sent ? (
-                  <Button
-                    className="w-full"
-                    onClick={() => setSent(true)}
-                    disabled={!canConfirm}
-                  >
-                    Já enviei o Pix
-                  </Button>
-                ) : (
-                  <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-green-950">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" />
-                      <div>
-                        <p className="font-semibold text-green-900">
-                          Solicitação enviada!
-                        </p>
-                        <p className="mt-1 text-sm text-green-900/90">
-                          Em até <b>24 horas</b> vamos conferir e, após confirmar,
-                          você aparece no ranking.
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button
-                      variant="secondary"
-                      className="mt-4 w-full"
-                      onClick={() => {
-                        setSent(false);
-                        setName("");
-                        setAmount("");
-                      }}
-                    >
-                      Enviar outra contribuição
-                    </Button>
+                <button
+                  onClick={() => setSuccess(false)}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md"
+                >
+                  Enviar nova confirmação
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm font-medium flex items-center gap-2">
+                    <span>⚠️</span> {error}
                   </div>
                 )}
 
-                <p className="text-xs text-muted-foreground">
-                  Dica: pode digitar com vírgula ou ponto (25,00 / 25.00).
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-bold text-gray-700">
+                    Nome Completo <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    className="w-full p-3.5 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-[#0066cc] focus:border-transparent outline-none transition-all"
+                    placeholder="Como quer aparecer no ranking"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-bold text-gray-700">
+                    Valor Enviado (R$) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    required
+                    value={formData.valor}
+                    onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                    className="w-full p-3.5 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-[#0066cc] focus:border-transparent outline-none transition-all"
+                    placeholder="Ex: 25,00"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Pode usar vírgula ou ponto.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-bold text-gray-700">
+                    WhatsApp <span className="text-gray-400 font-normal">(Opcional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.whatsapp}
+                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                    className="w-full p-3.5 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-[#0066cc] focus:border-transparent outline-none transition-all"
+                    placeholder="(00) 00000-0000"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Apenas para contato caso haja alguma dúvida.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed mt-6 text-lg flex justify-center items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    "Confirmar Pagamento"
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default PixPage;
