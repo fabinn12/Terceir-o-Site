@@ -3,13 +3,17 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 
-// 🔌 Se você estiver usando PocketBase agora, descomente:
-// import pb from "@/lib/pocketbaseClient";
-
 const HomePage = () => {
   const { toast } = useToast();
 
-  // ✅ metaDesejada (valor desejado) + arrecadado (quanto temos)
+  // ✅ Dados do site vindos do Supabase
+  const [settings, setSettings] = useState({
+    heroTitle: "Terceirão – Formatura",
+    heroSubtitle: "Ajude nossa turma a realizar a formatura dos sonhos!",
+    metaDesejada: 50000,
+  });
+
+  // ✅ metaDesejada + arrecadado
   const [meta, setMeta] = useState({ arrecadado: 0, metaDesejada: 0 });
 
   // ✅ Ranking “normal”: vem do backend (admin confirma e aparece aqui)
@@ -29,31 +33,40 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         // =========================
-        // META (por enquanto fake)
+        // SITE SETTINGS (Supabase)
         // =========================
-        const metaDesejadaFake = 50000;
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("hero_title, hero_subtitle, meta_desejada")
+          .eq("id", "main")
+          .single();
+
+        if (error) throw error;
+
+        const metaDesejadaFromDb = Number(data?.meta_desejada ?? 0);
+
+        setSettings({
+          heroTitle: data?.hero_title || "Terceirão – Formatura",
+          heroSubtitle:
+            data?.hero_subtitle || "Ajude nossa turma a realizar a formatura dos sonhos!",
+          metaDesejada: metaDesejadaFromDb || 0,
+        });
+
+        // =========================
+        // ARRECADADO (por enquanto fake)
+        // Depois você pode puxar de uma tabela "contribuicoes"
+        // =========================
         const arrecadadoFake = 12340;
 
         setMeta({
-          metaDesejada: metaDesejadaFake,
+          metaDesejada: metaDesejadaFromDb || 0,
           arrecadado: arrecadadoFake,
         });
 
         // =========================
-        // RANKING (normal — backend)
+        // RANKING (ainda vazio por enquanto)
         // =========================
         setRanking([]);
-
-        // 🔌 Quando tiver backend:
-        /*
-        const rankRes = await pb.collection("contribuicoes").getList(1, 10, {
-          sort: "-valor",
-          filter: 'status="confirmado"',
-          $autoCancel: false,
-        });
-
-        setRanking(rankRes.items);
-        */
       } catch (error) {
         console.error("Erro ao buscar dados da página inicial:", error);
         toast({
@@ -61,12 +74,20 @@ const HomePage = () => {
           description: "Não foi possível carregar os dados.",
           variant: "destructive",
         });
+
+        // fallback pra não quebrar a UI
+        const metaDesejadaFallback = Number(settings.metaDesejada || 0);
+        setMeta((prev) => ({
+          ...prev,
+          metaDesejada: metaDesejadaFallback,
+        }));
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
   // ✅ Cálculos automáticos
@@ -108,13 +129,13 @@ const HomePage = () => {
             <span className="opacity-90">Formatura</span>
           </div>
 
-          {/* TÍTULO COM FONTE “ESTILO LOGO” */}
+          {/* Título e subtítulo vindos do Supabase */}
           <h1 className="font-serif font-black tracking-wide text-4xl md:text-6xl lg:text-7xl text-white mb-4 drop-shadow-lg leading-tight">
-            Terceirão – Formatura
+            {settings.heroTitle}
           </h1>
 
           <p className="text-lg md:text-2xl text-white/85 mb-10 max-w-2xl mx-auto drop-shadow-md">
-            Ajude nossa turma a realizar a formatura dos sonhos!
+            {settings.heroSubtitle}
           </p>
 
           {/* BOTÕES (sem vidro/blur) */}
