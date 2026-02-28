@@ -289,9 +289,7 @@ const HomePage = () => {
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-500">
-                    * “Quanto falta” é calculado automaticamente: <b>Meta</b> −{" "}
-                    <b>Arrecadado</b>.
+                  <p className="text-xs text-gray-500">              
                   </p>
                 </div>
               </>
