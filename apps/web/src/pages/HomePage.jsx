@@ -6,19 +6,23 @@ import { supabase } from "@/lib/supabaseClient";
 const HomePage = () => {
   const { toast } = useToast();
 
-  // ✅ Dados do site vindos do Supabase
-  const [settings, setSettings] = useState({
+  const DEFAULTS = {
     heroTitle: "Terceirão – Formatura",
     heroSubtitle: "Ajude nossa turma a realizar a formatura dos sonhos!",
-    metaDesejada: 50000,
+    metaDesejada: 0,
+    arrecadado: 0,
+  };
+
+  // ✅ Dados do site vindos do Supabase
+  const [settings, setSettings] = useState({
+    heroTitle: DEFAULTS.heroTitle,
+    heroSubtitle: DEFAULTS.heroSubtitle,
+    metaDesejada: DEFAULTS.metaDesejada,
+    arrecadado: DEFAULTS.arrecadado,
   });
 
-  // ✅ metaDesejada + arrecadado
-  const [meta, setMeta] = useState({ arrecadado: 0, metaDesejada: 0 });
-
-  // ✅ Ranking “normal”: vem do backend (admin confirma e aparece aqui)
+  // ✅ Ranking vindo do Supabase
   const [ranking, setRanking] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   const formatBRL = (v) =>
@@ -30,78 +34,108 @@ const HomePage = () => {
     }).format(Number(v || 0));
 
   useEffect(() => {
+    let alive = true;
+
     const fetchData = async () => {
+      setLoading(true);
       try {
         // =========================
         // SITE SETTINGS (Supabase)
         // =========================
-        const { data, error } = await supabase
+        const { data: s, error: sErr } = await supabase
           .from("site_settings")
-          .select("hero_title, hero_subtitle, meta_desejada")
+          .select("hero_title, hero_subtitle, meta_desejada, arrecadado")
           .eq("id", "main")
           .single();
 
-        if (error) throw error;
+        if (sErr) throw sErr;
 
-        const metaDesejadaFromDb = Number(data?.meta_desejada ?? 0);
+        const heroTitle = s?.hero_title ?? DEFAULTS.heroTitle;
+        const heroSubtitle = s?.hero_subtitle ?? DEFAULTS.heroSubtitle;
+        const metaDesejada = Number(s?.meta_desejada ?? DEFAULTS.metaDesejada);
+        const arrecadado = Number(s?.arrecadado ?? DEFAULTS.arrecadado);
+
+        // =========================
+        // RANKING (Supabase)
+        // =========================
+        const { data: r, error: rErr } = await supabase
+          .from("contribuicoes")
+          .select("id,nome,valor")
+          .eq("status", "confirmado")
+          .order("valor", { ascending: false })
+          .limit(10);
+
+        if (rErr) throw rErr;
+
+        if (!alive) return;
 
         setSettings({
-          heroTitle: data?.hero_title || "Terceirão – Formatura",
-          heroSubtitle:
-            data?.hero_subtitle || "Ajude nossa turma a realizar a formatura dos sonhos!",
-          metaDesejada: metaDesejadaFromDb || 0,
+          heroTitle,
+          heroSubtitle,
+          metaDesejada,
+          arrecadado,
         });
 
-        // =========================
-        // ARRECADADO (por enquanto fake)
-        // Depois você pode puxar de uma tabela "contribuicoes"
-        // =========================
-        const arrecadadoFake = 12340;
-
-        setMeta({
-          metaDesejada: metaDesejadaFromDb || 0,
-          arrecadado: arrecadadoFake,
-        });
-
-        // =========================
-        // RANKING (ainda vazio por enquanto)
-        // =========================
-        setRanking([]);
+        setRanking(r || []);
       } catch (error) {
         console.error("Erro ao buscar dados da página inicial:", error);
         toast({
           title: "Erro de Conexão",
-          description: "Não foi possível carregar os dados.",
+          description: "Não foi possível carregar os dados do site.",
           variant: "destructive",
         });
 
-        // fallback pra não quebrar a UI
-        const metaDesejadaFallback = Number(settings.metaDesejada || 0);
-        setMeta((prev) => ({
-          ...prev,
-          metaDesejada: metaDesejadaFallback,
+        if (!alive) return;
+
+        // fallback seguro
+        setSettings((prev) => ({
+          heroTitle: prev.heroTitle || DEFAULTS.heroTitle,
+          heroSubtitle: prev.heroSubtitle || DEFAULTS.heroSubtitle,
+          metaDesejada: Number(prev.metaDesejada || 0),
+          arrecadado: Number(prev.arrecadado || 0),
         }));
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     };
 
     fetchData();
+
+    // ✅ Realtime: quando admin salvar settings ou contribuições, Home atualiza sozinho
+    const ch = supabase
+      .channel("home-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "site_settings" },
+        (payload) => {
+          if (payload?.new?.id === "main") fetchData();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contribuicoes" },
+        () => fetchData()
+      )
+      .subscribe();
+
+    return () => {
+      alive = false;
+      supabase.removeChannel(ch);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast]);
 
   // ✅ Cálculos automáticos
-  const falta = useMemo(
-    () => Math.max(Number(meta.metaDesejada) - Number(meta.arrecadado), 0),
-    [meta.metaDesejada, meta.arrecadado]
-  );
+  const falta = useMemo(() => {
+    return Math.max(Number(settings.metaDesejada) - Number(settings.arrecadado), 0);
+  }, [settings.metaDesejada, settings.arrecadado]);
 
   const percentage = useMemo(() => {
-    const total = Number(meta.metaDesejada);
-    const have = Number(meta.arrecadado);
+    const total = Number(settings.metaDesejada);
+    const have = Number(settings.arrecadado);
     if (total <= 0) return 0;
     return Math.min(100, Math.round((have / total) * 100));
-  }, [meta.metaDesejada, meta.arrecadado]);
+  }, [settings.metaDesejada, settings.arrecadado]);
 
   return (
     <div className="min-h-screen animate-fade-in">
@@ -138,9 +172,8 @@ const HomePage = () => {
             {settings.heroSubtitle}
           </p>
 
-          {/* BOTÕES (sem vidro/blur) */}
+          {/* BOTÕES */}
           <div className="mt-2 flex flex-col items-center gap-4">
-            {/* Linha 1: Pix + Meta */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
               <Link
                 to="/pix"
@@ -161,7 +194,6 @@ const HomePage = () => {
               </button>
             </div>
 
-            {/* Linha 2: Noite de Massas centralizado + pulsando leve */}
             <Link
               to="/noite-massas"
               className="w-full sm:w-auto group relative overflow-hidden rounded-full px-10 py-4 font-extrabold text-lg text-white shadow-lg text-center transition-all hover:scale-105 animate-pulse"
@@ -185,7 +217,6 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {/* mini chamada embaixo (sem blur/vidro pesado) */}
           <div className="mt-6 text-white/80 text-sm md:text-base">
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 px-4 py-2 rounded-full">
               <span className="animate-[wiggle_1.2s_ease-in-out_infinite]">🍝</span>
@@ -215,7 +246,7 @@ const HomePage = () => {
                       Meta (valor desejado)
                     </p>
                     <p className="max-w-full text-[clamp(18px,2.3vw,38px)] font-extrabold tracking-tight leading-none text-[#1e3a5f] whitespace-nowrap">
-                      {formatBRL(meta.metaDesejada)}
+                      {formatBRL(settings.metaDesejada)}
                     </p>
                   </div>
 
@@ -224,7 +255,7 @@ const HomePage = () => {
                       Quanto temos
                     </p>
                     <p className="max-w-full text-[clamp(18px,2.3vw,38px)] font-extrabold tracking-tight leading-none text-[#0066cc] whitespace-nowrap">
-                      {formatBRL(meta.arrecadado)}
+                      {formatBRL(settings.arrecadado)}
                     </p>
                   </div>
 
@@ -269,7 +300,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Ranking Section (NORMAL) */}
+      {/* Ranking Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1e3a5f]">
@@ -310,6 +341,7 @@ const HomePage = () => {
                         {item.nome}
                       </span>
                     </div>
+
                     <span className="font-bold text-[#0066cc] text-lg md:text-xl">
                       {formatBRL(item.valor)}
                     </span>
