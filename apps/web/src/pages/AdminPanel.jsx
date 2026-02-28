@@ -12,6 +12,7 @@ const AdminPanel = () => {
 
   // ===== Auth (Supabase) =====
   const [session, setSession] = useState(null);
+  const [isSavingMassas, setIsSavingMassas] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -572,9 +573,9 @@ const AdminPanel = () => {
                   <Input value={massasForm.link_whatsapp} onChange={(e) => setMassasForm((p) => ({ ...p, link_whatsapp: e.target.value }))} />
                 </div>
                 <div className="md:col-span-2">
-                  <Button onClick={handleSaveMassas} className="bg-[#0066cc] hover:bg-[#0052a3] text-white py-6 text-lg w-full">
-                    <Save className="w-5 h-5 mr-2" /> Salvar Evento
-                  </Button>
+                  <Button onClick={handleSaveMassas} disabled={isSavingMassas}>
+  {isSavingMassas ? "Salvando..." : "Salvar Evento"}
+</Button>
                 </div>
               </div>
             </TabsContent>
