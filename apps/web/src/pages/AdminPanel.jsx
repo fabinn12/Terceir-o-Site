@@ -110,15 +110,21 @@ const AdminPanel = () => {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        setAuthError("Senha incorreta ou usuário admin não existe.");
-        return;
+      // ✅ Mostra o erro real do Supabase
+      console.error("Supabase login error:", error);
+      setAuthError(`${error.message}`);
+      return;
       }
+      if (!data?.session) {
+      setAuthError("Login sem sessão (verifique o usuário/senha).");
+      return;
+    }
 
       toast({ title: "Sucesso", description: "Bem-vindo ao painel!" });
       setPassword("");
