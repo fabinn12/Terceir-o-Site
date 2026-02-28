@@ -193,33 +193,39 @@ const AdminPanel = () => {
   };
 
   // ===== Save Massas =====
-  const handleSaveMassas = async () => {
-    try {
-      const payload = {
-        data: massasForm.data || "",
-        horario: massasForm.horario || "",
-        local: massasForm.local || "",
-        link_whatsapp: massasForm.link_whatsapp || "",
-      };
+ const handleSaveMassas = async () => {
+  setIsSavingMassas(true);
+  try {
+    const payload = {
+      id: "main",
+      // se estiver vazio, manda null (date não aceita "")
+      data: massasForm.data?.trim() ? massasForm.data.trim() : null,
+      horario: massasForm.horario?.trim() ? massasForm.horario.trim() : "",
+      local: massasForm.local?.trim() ? massasForm.local.trim() : "",
+      link_whatsapp: massasForm.link_whatsapp?.trim() ? massasForm.link_whatsapp.trim() : "",
+    };
 
-      const { error } = await supabase
-        .from("noite_massas")
-        .update(payload)
-        .eq("id", "main");
+    const { error } = await supabase
+      .from("noite_massas")
+      .upsert(payload, { onConflict: "id" });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      toast({ title: "Salvo", description: "Evento atualizado." });
-      fetchAll();
-    } catch (err) {
-      console.error("save massas:", err);
-      toast({
-        title: "Não salvou",
-        description: err?.message || "Verifique policies (RLS).",
-        variant: "destructive",
-      });
-    }
-  };
+    toast({ title: "Sucesso", description: "Informações do evento atualizadas!" });
+
+    // recarrega
+    await fetchAll();
+  } catch (err) {
+    console.error("Erro ao salvar Noite de Massas:", err);
+    toast({
+      title: "Erro",
+      description: err?.message || "Falha ao salvar evento (RLS ou colunas).",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSavingMassas(false);
+  }
+};
 
   // ===== Ranking CRUD =====
   const handleSaveRanking = async (e) => {
