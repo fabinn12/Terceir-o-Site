@@ -9,7 +9,7 @@ const SocialPage = () => {
     {
       name: 'WhatsApp',
       logo: whatsappLogo,
-      url: 'https://w.app/w6hgum',
+      url: 'https://w.app/5wjglf',
       color: 'bg-[#0066cc]',
       textColor: 'text-[#0066cc]',
       description: 'Fale conosco para dúvidas e informações'
