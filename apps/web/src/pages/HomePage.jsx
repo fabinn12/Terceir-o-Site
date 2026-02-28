@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabaseClient";
 
 // 🔌 Se você estiver usando PocketBase agora, descomente:
 // import pb from "@/lib/pocketbaseClient";
